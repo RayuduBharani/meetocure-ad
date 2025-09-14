@@ -21,7 +21,7 @@ const HospitalInfo = () => {
   const fetchHospitalInfo = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:8000/admin/hospitals/${id}`);
+      const response = await fetch(`http://13.232.200.28:8000/admin/hospitals/${id}`);
       const data = await response.json();
       
       if (data.success) {
@@ -113,7 +113,7 @@ const HospitalInfo = () => {
             <div className="h-64 bg-gradient-to-r from-[#2f4f6f] to-gray-400 flex items-center justify-center">
               {hospital.hospitalImage ? (
                 <img 
-                  src={`http://localhost:8000${hospital.hospitalImage}`} 
+                  src={`http://13.232.200.28:8000${hospital.hospitalImage}`} 
                   alt={hospital.hospitalName}
                   className="w-full h-full object-cover"
                 />

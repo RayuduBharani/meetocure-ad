@@ -24,7 +24,7 @@ const Hospitals = () => {
   const fetchHospitals = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8000/admin/hospitals');
+      const response = await fetch('http://13.232.200.28:8000/admin/hospitals');
       const data = await response.json();
       
       if (data.success) {
@@ -42,7 +42,7 @@ const Hospitals = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('http://localhost:8000/admin/hospitals/stats');
+      const response = await fetch('http://13.232.200.28:8000/admin/hospitals/stats');
       const data = await response.json();
       
       if (data.success) {
@@ -75,7 +75,7 @@ const Hospitals = () => {
 
     try {
       setDeleting(true);
-      const response = await fetch(`http://localhost:8000/admin/hospitals/${hospitalToDelete._id}`, {
+      const response = await fetch(`http://13.232.200.28:8000/admin/hospitals/${hospitalToDelete._id}`, {
         method: 'DELETE',
       });
       const data = await response.json();
