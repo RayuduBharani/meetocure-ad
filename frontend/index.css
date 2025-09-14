@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sidebar-bg: #0b4b67;
+  --color-sidebar-active: #206d91;
+  --color-main-bg: #f3f4f6;
+  --color-primary: #0b4b67;
+  --color-status-green-bg: #d1fae5;
+  --color-status-green-text: #065f46;
+  --color-status-yellow-bg: #fef3c7;
+  --color-status-yellow-text: #92400e;
+  --color-status-red-bg: #fee2e2;
+  --color-status-red-text: #991b1b;
+}
+
+.recharts-wrapper:focus-visible {
+  outline: none;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

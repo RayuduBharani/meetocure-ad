@@ -1,0 +1,5 @@
+{
+  "name": "MeetoCure Admin Dashboard",
+  "description": "A comprehensive admin dashboard for the MeetoCure healthcare application. It allows administrators to manage doctors, patients, appointments, and system settings, while also providing key analytics and metrics.",
+  "requestFramePermissions": []
+}
