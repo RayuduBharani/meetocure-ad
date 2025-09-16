@@ -80,12 +80,17 @@ class ApiService {
 
     // Doctors API methods
     async getDoctors() {
-        const url = `${API_BASE_URL}/docters`;
+        const url = `${API_BASE_URL}/doctors`;
         return this.fetchData(url);
     }
 
     async getDoctorById(id) {
-        const url = `${API_BASE_URL}/docters/${id}`;
+        const url = `${API_BASE_URL}/doctors/${id}`;
+        return this.fetchData(url);
+    }
+
+    async getDoctorPatients(id) {
+        const url = `${API_BASE_URL}/doctors/${id}/patients`;
         return this.fetchData(url);
     }
 

@@ -117,8 +117,8 @@ app.post("/admin/register", async (req, res) => {
     return res.status(500).send({ success: false, message: "Could not register user" })
 })
 
-//docter routes
-app.use("/admin/docters", require("./routes/docters.js"));
+//doctor routes
+app.use("/admin/doctors", require("./routes/doctors.js"));
 app.use("/admin/hospitals", require("./routes/hospitals.js"));
 
 //patient routes

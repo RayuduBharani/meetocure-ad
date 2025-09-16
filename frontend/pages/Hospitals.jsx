@@ -336,8 +336,13 @@ const Hospitals = () => {
                         Doctors:
                       </span>
                       <span className="text-sm text-gray-800 font-medium">
-                        {hospital.docters ? hospital.docters.length : 0}
+                        {hospital.totalDoctors || 0}
                       </span>
+                      {hospital.totalDoctors > 0 && (
+                        <span className="ml-2 text-xs text-gray-500">
+                          ({hospital.verifiedDoctors} verified)
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -386,9 +391,9 @@ const Hospitals = () => {
                 <button
                   onClick={() => handleDeleteHospital(hospital)}
                   className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
-                  disabled={hospital.docters && hospital.docters.length > 0}
+                  disabled={hospital.totalDoctors > 0}
                   title={
-                    hospital.docters && hospital.docters.length > 0 
+                    hospital.totalDoctors > 0
                       ? "Cannot delete hospital with registered doctors" 
                       : "Delete hospital"
                   }

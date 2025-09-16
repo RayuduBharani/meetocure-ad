@@ -1,371 +1,278 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { HospitalIcon } from '../components/icons/HospitalIcon.jsx';
-import { DoctorIcon } from '../components/icons/DoctorIcon.jsx';
-import { XIcon } from '../components/icons/XIcon.jsx';
+import { HospitalIcon } from '../components/icons/HospitalIcon';
+import { DoctorIcon } from '../components/icons/DoctorIcon';
+import Badge from '../components/ui/Badge.jsx';
 
 const HospitalInfo = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
-  // State Management
   const [hospital, setHospital] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Effects
-  useEffect(() => {
-    if (id) {
-      fetchHospitalInfo();
-    }
-  }, [id]);
+    useEffect(() => {
+        fetchHospitalDetails();
+    }, [id]);
 
-  // API Functions
-  const fetchHospitalInfo = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`http://localhost:8000/admin/hospitals/${id}`);
-      const data = await response.json();
-      
-      if (data.success) {
-        setHospital(data.data);
-        console.log('Hospital data:', data.data);
-      } else {
-        setError(data.message);
-      }
-    } catch (err) {
-      setError('Failed to fetch hospital information');
-      console.error('Error fetching hospital:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Event Handlers
-  const handleBackToHospitals = () => navigate('/hospitals');
-  const handleViewDoctorDetails = (doctorId) => navigate(`/doctors/${doctorId}`);
-
-  // Helper Functions
-  const getStatusBadgeClass = (status) => {
-    const baseClasses = 'px-3 py-1 rounded-full text-sm font-medium';
-    switch (status) {
-      case 'verified':
-        return `${baseClasses} bg-green-100 text-green-800`;
-      case 'rejected':
-        return `${baseClasses} bg-red-100 text-red-800`;
-      default:
-        return `${baseClasses} bg-yellow-100 text-yellow-800`;
-    }
-  };
-
-  // Loading State
-  if (loading) {
-    return (
-      <div className="p-8 font-sans">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2f4f6f]"></div>
-        </div>
-      </div>
-    );
-  }
-
-  // Error State
-  if (error) {
-    return (
-      <div className="p-8 font-sans">
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6 shadow-md">
-          <p className="text-red-600 text-base">{error}</p>
-          <button 
-            onClick={fetchHospitalInfo}
-            className="mt-3 px-5 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-all duration-200"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Not Found State
-  if (!hospital) {
-    return (
-      <div className="p-8 font-sans">
-        <div className="text-center py-12">
-          <HospitalIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-600 mb-2">Hospital not found</h3>
-          <p className="text-gray-500 text-base">The hospital you're looking for doesn't exist.</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="p-8 font-sans bg-[#f8fafc] min-h-screen">
-      {/* Header Section */}
-      <div className="mb-8">
-        <button
-          onClick={handleBackToHospitals}
-          className="flex items-center text-[#2f4f6f] hover:text-gray-700 transition-all duration-200 font-medium mb-4"
-        >
-          <XIcon className="w-5 h-5 mr-2 rotate-45" />
-          Back to Hospitals
-        </button>
-        <h1 className="text-4xl font-bold text-[#2f4f6f] mb-2">{hospital.hospitalName}</h1>
-        <p className="text-gray-600 text-lg">Complete hospital information and associated doctors</p>
-      </div>
-
-      {/* Hospital Information Section */}
-      <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Hospital Image */}
-          <div className="lg:w-1/3">
-            <div className="h-64 lg:h-80 bg-gradient-to-r from-[#2f4f6f] to-gray-400 rounded-xl flex items-center justify-center">
-              {hospital.hospitalImage ? (
-                <img 
-                  src={`http://localhost:8000${hospital.hospitalImage}`} 
-                  alt={hospital.hospitalName}
-                  className="w-full h-full object-cover rounded-xl"
-                />
-              ) : (
-                <HospitalIcon className="w-24 h-24 text-white" />
-              )}
-            </div>
-          </div>
-
-          {/* Hospital Details */}
-          <div className="lg:w-2/3">
-            <h2 className="text-2xl font-bold text-[#2f4f6f] mb-6">Hospital Information</h2>
+    const fetchHospitalDetails = async () => {
+        try {
+            setLoading(true);
+            setError(null);
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <InfoField label="Hospital Name" value={hospital.hospitalName} />
-                <InfoField label="Email" value={hospital.email} />
-                <InfoField label="Contact" value={hospital.contact} />
-              </div>
-              
-              <div className="space-y-4">
-                <InfoField label="Address" value={hospital.address} />
-                <InfoField 
-                  label="Total Doctors" 
-                  value={hospital.docters ? hospital.docters.length : 0}
-                  valueClass="text-[#2f4f6f] font-bold text-xl"
-                />
-                {hospital.location && (hospital.location.city || hospital.location.state) && (
-                  <InfoField 
-                    label="Location" 
-                    value={[hospital.location.city, hospital.location.state].filter(Boolean).join(', ')}
-                  />
-                )}
-              </div>
+            const response = await fetch(`http://localhost:8000/admin/hospitals/${id}`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                setHospital(data.data);
+            } else {
+                setError(data.message || 'Failed to fetch hospital details');
+            }
+        } catch (err) {
+            setError('Failed to fetch hospital details: ' + err.message);
+            console.error('Error fetching hospital details:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleViewDoctors = () => {
+        navigate(`/hospitals/${id}/doctors`);
+    };
+
+    const handleBack = () => {
+        navigate('/hospitals');
+    };
+
+
+
+    if (loading) {
+        return (
+            <div className="p-8">
+                <div className="flex items-center justify-center h-64">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
             </div>
+        );
+    }
 
-            {hospital.description && (
-              <div className="mt-6">
-                <InfoField label="Description" value={hospital.description} />
-              </div>
-            )}
-
-            {hospital.specialties && hospital.specialties.length > 0 && (
-              <div className="mt-6">
-                <span className="text-sm font-medium text-gray-600 block mb-3">Specialties:</span>
-                <div className="flex flex-wrap gap-2">
-                  {hospital.specialties.map((specialty, index) => (
-                    <span 
-                      key={index}
-                      className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full font-medium"
-                    >
-                      {specialty}
-                    </span>
-                  ))}
+    if (error) {
+        return (
+            <div className="p-8">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-red-800 mb-2">Error</h3>
+                    <p className="text-red-600 text-base mb-4">{error}</p>
+                    <div className="flex space-x-3">
+                        <button 
+                            onClick={handleBack}
+                            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                        >
+                            Back to Hospitals
+                        </button>
+                        <button 
+                            onClick={() => {
+                                setError(null);
+                                setLoading(true);
+                                fetchHospitalDetails();
+                            }}
+                            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                        >
+                            Retry
+                        </button>
+                    </div>
                 </div>
-              </div>
-            )}
+            </div>
+        );
+    }
 
-            {hospital.facilities && hospital.facilities.length > 0 && (
-              <div className="mt-6">
-                <span className="text-sm font-medium text-gray-600 block mb-3">Facilities:</span>
-                <div className="flex flex-wrap gap-2">
-                  {hospital.facilities.map((facility, index) => (
-                    <span 
-                      key={index}
-                      className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full font-medium"
+    if (!hospital) {
+        return (
+            <div className="p-8">
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <p className="text-yellow-600">Hospital not found</p>
+                    <button 
+                        onClick={handleBack}
+                        className="mt-2 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
                     >
-                      {facility}
-                    </span>
-                  ))}
+                        Back to Hospitals
+                    </button>
                 </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+            </div>
+        );
+    }
 
-      {/* Doctors Section */}
-      <div className="bg-white rounded-2xl shadow-xl p-8">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl font-bold text-[#2f4f6f]">Associated Doctors</h2>
-          <div className="flex items-center space-x-4">
-            <span className="px-4 py-2 bg-gray-100 text-[#2f4f6f] rounded-full text-lg font-semibold">
-              {hospital.docters ? hospital.docters.length : 0} doctors
-            </span>
-          </div>
-        </div>
+    return (
+        <div className="p-8">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-8">
+                <div>
+                    <button
+                        onClick={handleBack}
+                        className="text-gray-600 hover:text-gray-800 mb-2 flex items-center"
+                    >
+                        ← Back to Hospitals
+                    </button>
+                    <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                        {hospital.hospitalName}
+                    </h1>
+                    <p className="text-gray-600">Hospital Details</p>
+                </div>
+            </div>
+            
+            {/* Hospital Details Card */}
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                {/* Hospital Image Banner */}
+                <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                    {hospital.hospitalImage ? (
+                        <img 
+                            src={hospital.hospitalImage} 
+                            alt={hospital.hospitalName}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'block';
+                            }}
+                        />
+                    ) : (
+                        <HospitalIcon className="w-16 h-16 text-white" />
+                    )}
+                </div>
 
-        {hospital.docters && hospital.docters.length > 0 ? (
-          <div className="space-y-6">
-            {hospital.docters.map((doctor, index) => (
-              <DoctorCard 
-                key={index}
-                doctor={doctor}
-                onViewDetails={handleViewDoctorDetails}
-                getStatusBadgeClass={getStatusBadgeClass}
-              />
-            ))}
-          </div>
-        ) : (
-          <EmptyDoctorsState />
-        )}
-      </div>
-    </div>
-  );
+                {/* Content */}
+                <div className="p-6">
+                    {/* Basic Info */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-800 mb-4">Contact Information</h3>
+                            <div className="space-y-3">
+                                <div>
+                                    <label className="text-sm text-gray-600">Address</label>
+                                    <p className="text-gray-800">{hospital.address}</p>
+                                </div>
+                                <div>
+                                    <label className="text-sm text-gray-600">Contact Number</label>
+                                    <p className="text-gray-800">{hospital.contact}</p>
+                                </div>
+                                <div>
+                                    <label className="text-sm text-gray-600">Email</label>
+                                    <p className="text-gray-800">{hospital.email}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-800 mb-4">Doctor Statistics</h3>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-blue-50 p-4 rounded-lg">
+                                    <label className="text-sm text-blue-600">Total Doctors</label>
+                                    <p className="text-2xl font-bold text-blue-800">{hospital.totalDoctors || 0}</p>
+                                </div>
+                                <div className="bg-green-50 p-4 rounded-lg">
+                                    <label className="text-sm text-green-600">Verified</label>
+                                    <p className="text-2xl font-bold text-green-800">{hospital.verifiedDoctors || 0}</p>
+                                </div>
+                                <div className="bg-yellow-50 p-4 rounded-lg">
+                                    <label className="text-sm text-yellow-600">Pending</label>
+                                    <p className="text-2xl font-bold text-yellow-800">{hospital.pendingDoctors || 0}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Additional Info (if available) */}
+                    {hospital.specialties && hospital.specialties.length > 0 && (
+                        <div className="mb-6">
+                            <h3 className="text-lg font-semibold text-gray-800 mb-3">Specialties</h3>
+                            <div className="flex flex-wrap gap-2">
+                                {hospital.specialties.map((specialty, index) => (
+                                    <span 
+                                        key={index}
+                                        className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                                    >
+                                        {specialty}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {hospital.description && (
+                        <div className="mb-6">
+                            <h3 className="text-lg font-semibold text-gray-800 mb-3">About</h3>
+                            <p className="text-gray-600">{hospital.description}</p>
+                        </div>
+                    )}
+
+                    {/* Doctors List */}
+                    <div>
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Doctors ({hospital.doctors?.length || 0})</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {hospital.doctors && hospital.doctors.map((doctor) => (
+                                <div key={doctor._id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div>
+                                            <h4 className="text-lg font-medium text-gray-900">
+                                                Dr. {doctor.verificationDetails?.fullName || doctor.fullName || 'No Name'}
+                                            </h4>
+                                            <p className="text-sm text-gray-600">
+                                                {doctor.verificationDetails?.primarySpecialization || doctor.primarySpecialization || 'Specialization not specified'}
+                                            </p>
+                                        </div>
+                                        <Badge 
+                                            type={doctor.verified ? "success" : "warning"}
+                                            text={doctor.verified ? "Verified" : "Pending"}
+                                        />
+                                    </div>
+                                    
+                                    <div className="space-y-2 mb-4">
+                                        {(doctor.verificationDetails?.category || doctor.category) && (
+                                            <div className="text-sm">
+                                                <span className="text-gray-600">Category:</span>
+                                                <span className="ml-2 text-gray-800">{doctor.verificationDetails?.category || doctor.category}</span>
+                                            </div>
+                                        )}
+                                        {(doctor.verificationDetails?.consultationFee || doctor.consultationFee) && (
+                                            <div className="text-sm">
+                                                <span className="text-gray-600">Consultation Fee:</span>
+                                                <span className="ml-2 text-gray-800">₹{doctor.verificationDetails?.consultationFee || doctor.consultationFee}</span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="flex space-x-2">
+                                        <button
+                                            onClick={() => navigate(`/doctors/${doctor._id}`)}
+                                            className="flex-1 px-3 py-1.5 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-sm font-medium transition-colors"
+                                        >
+                                            View Details
+                                        </button>
+                                        <button
+                                            onClick={() => navigate(`/doctors/${doctor._id}/patients`)}
+                                            className="flex-1 px-3 py-1.5 bg-green-100 text-green-700 rounded hover:bg-green-200 text-sm font-medium transition-colors"
+                                        >
+                                            View Patients
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {(!hospital.doctors || hospital.doctors.length === 0) && (
+                            <div className="text-center py-8 bg-gray-50 rounded-lg">
+                                <DoctorIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                                <p className="text-gray-600">No doctors found for this hospital</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 };
-
-// Info Field Component
-const InfoField = ({ label, value, valueClass = "text-gray-800 text-base font-medium" }) => (
-  <div>
-    <span className="text-sm font-medium text-gray-600 block mb-1">{label}:</span>
-    <p className={valueClass}>{value}</p>
-  </div>
-);
-
-// Doctor Card Component
-const DoctorCard = ({ doctor, onViewDetails, getStatusBadgeClass }) => (
-  <div className="border border-gray-200 rounded-xl p-6 bg-gray-50 hover:shadow-lg transition-all duration-200">
-    <div className="flex flex-col lg:flex-row lg:items-start lg:space-x-6 space-y-4 lg:space-y-0">
-      {/* Doctor Avatar */}
-      <div className="flex justify-center lg:justify-start">
-        <div className="w-24 h-24 bg-gradient-to-r from-[#2f4f6f] to-gray-400 rounded-full flex items-center justify-center shadow-lg">
-          {doctor.verificationDetails?.profileImage ? (
-            <img
-              src={doctor.verificationDetails.profileImage}
-              alt={doctor.verificationDetails.fullName}
-              className="w-24 h-24 rounded-full object-cover"
-            />
-          ) : (
-            <DoctorIcon className="w-12 h-12 text-white" />
-          )}
-        </div>
-      </div>
-
-      {/* Doctor Details */}
-      <div className="flex-1">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
-          <h3 className="text-2xl font-bold text-[#2f4f6f] mb-2 lg:mb-0">
-            {doctor.verificationDetails?.fullName || 'Name not available'}
-          </h3>
-          <span className={getStatusBadgeClass(doctor.registrationStatus)}>
-            {doctor.registrationStatus?.replace(/_/g, ' ') || 'Unknown'}
-          </span>
-        </div>
-
-        {/* Doctor Information Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-          <DetailItem 
-            label="Specialization"
-            value={doctor.verificationDetails?.primarySpecialization || 'Not specified'}
-          />
-          <DetailItem 
-            label="Category"
-            value={doctor.verificationDetails?.category || 'Not specified'}
-          />
-          <DetailItem 
-            label="Experience"
-            value={`${doctor.verificationDetails?.experienceYears || 'Not specified'} years`}
-          />
-          <DetailItem 
-            label="Consultation Fee"
-            value={`₹${doctor.verificationDetails?.consultationFee || 'Not specified'}`}
-          />
-          <DetailItem 
-            label="Email"
-            value={doctor.email || 'Not provided'}
-          />
-          <DetailItem 
-            label="Mobile"
-            value={doctor.mobileNumber || 'Not provided'}
-          />
-        </div>
-
-        {/* Additional Information */}
-        <div className="space-y-3">
-          {doctor.verificationDetails?.about && (
-            <div>
-              <span className="text-sm font-medium text-gray-600 block mb-1">About:</span>
-              <p className="text-gray-800 text-sm leading-relaxed">{doctor.verificationDetails.about}</p>
-            </div>
-          )}
-
-          {doctor.verificationDetails?.qualifications && doctor.verificationDetails.qualifications.length > 0 && (
-            <div>
-              <span className="text-sm font-medium text-gray-600 block mb-1">Qualifications:</span>
-              <div className="space-y-1">
-                {doctor.verificationDetails.qualifications.map((qual, qualIndex) => (
-                  <div key={qualIndex} className="text-sm text-gray-800">
-                    • {qual.degree} - {qual.universityCollege} ({qual.year})
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {doctor.verificationDetails?.location && (
-            <div>
-              <span className="text-sm font-medium text-gray-600 block mb-1">Location:</span>
-              <p className="text-sm text-gray-800">
-                {doctor.verificationDetails.location.city}, {doctor.verificationDetails.location.state}
-              </p>
-            </div>
-          )}
-
-          {doctor.verificationDetails?.medicalCouncilRegistrationNumber && (
-            <div>
-              <span className="text-sm font-medium text-gray-600 block mb-1">Medical Council Registration:</span>
-              <p className="text-sm text-gray-800">{doctor.verificationDetails.medicalCouncilRegistrationNumber}</p>
-            </div>
-          )}
-        </div>
-
-        {/* View Details Button */}
-        <div className="mt-6">
-          <button
-            onClick={() => onViewDetails(doctor._id)}
-            className="px-6 py-3 bg-[#2f4f6f] text-white rounded-lg font-semibold hover:bg-[#24384e] transition-all duration-200"
-          >
-            View Full Details
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-// Detail Item Component
-const DetailItem = ({ label, value }) => (
-  <div>
-    <span className="text-sm text-gray-600 block">{label}:</span>
-    <span className="text-base text-gray-800 font-medium">{value}</span>
-  </div>
-);
-
-// Empty Doctors State Component
-const EmptyDoctorsState = () => (
-  <div className="text-center py-16">
-    <DoctorIcon className="w-20 h-20 text-gray-300 mx-auto mb-6" />
-    <h3 className="text-2xl font-semibold text-gray-600 mb-3">No doctors registered</h3>
-    <p className="text-gray-500 text-lg">
-      This hospital doesn't have any doctors registered yet.
-    </p>
-  </div>
-);
 
 export default HospitalInfo;

@@ -14,7 +14,7 @@ const DoctorDetails = () => {
   useEffect(() => {
     const fetchDoctorDetails = async () => {
       try {
-        const response = await fetch(`${API_URL}/admin/docters/${id}`);
+        const response = await fetch(`${API_URL}/admin/doctors/${id}`);
         const data = await response.json();
         console.log('Doctor details response:', data);
         if (data.success) {
@@ -39,7 +39,7 @@ const DoctorDetails = () => {
       setDeleting(true);
       console.log('Attempting to delete doctor with ID:', id);
       
-      const response = await fetch(`${API_URL}/admin/docters/${id}`, {
+      const response = await fetch(`${API_URL}/admin/doctors/${id}`, {
         method: 'DELETE',
       });
       
@@ -100,13 +100,13 @@ const DoctorDetails = () => {
           <div className="space-y-6">
             <div className="flex items-center space-x-4">
               <img
-                src={doctor.verificationDetails?.profileImage || '/default-doctor.png'}
-                alt={doctor.verificationDetails?.fullName || 'Doctor'}
+                src={doctor.profileImage || '/default-doctor.png'}
+                alt={doctor.fullName || 'Doctor'}
                 className="w-24 h-24 rounded-full object-cover"
               />
               <div>
-                <h2 className="text-2xl font-bold text-gray-800">{doctor.verificationDetails?.fullName || 'Unknown'}</h2>
-                <p className="text-gray-600">{doctor.verificationDetails?.category || 'General'}</p>
+                <h2 className="text-2xl font-bold text-gray-800">{doctor.fullName || 'Unknown'}</h2>
+                <p className="text-gray-600">{doctor.category || 'General'}</p>
               </div>
             </div>
 
@@ -115,19 +115,19 @@ const DoctorDetails = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-500">Gender</p>
-                  <p className="text-gray-800">{doctor.verificationDetails?.gender || 'Not specified'}</p>
+                  <p className="text-gray-800">{doctor.gender || 'Not specified'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Date of Birth</p>
-                  <p className="text-gray-800">{doctor.verificationDetails?.dateOfBirth ? new Date(doctor.verificationDetails.dateOfBirth).toLocaleDateString() : 'Not specified'}</p>
+                  <p className="text-gray-800">{doctor.dateOfBirth ? new Date(doctor.dateOfBirth).toLocaleDateString() : 'Not specified'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Experience</p>
-                  <p className="text-gray-800">{doctor.verificationDetails?.experienceYears || 'Not specified'} years</p>
+                  <p className="text-gray-800">{doctor.experienceYears || 'Not specified'} years</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Consultation Fee</p>
-                  <p className="text-gray-800">₹{doctor.verificationDetails?.consultationFee || 'Not specified'}</p>
+                  <p className="text-gray-800">₹{doctor.consultationFee || 'Not specified'}</p>
                 </div>
               </div>
             </div>
@@ -136,11 +136,11 @@ const DoctorDetails = () => {
               <h3 className="text-lg font-semibold">Specializations</h3>
               <div>
                 <p className="text-sm text-gray-500">Primary Specialization</p>
-                <p className="text-gray-800">{doctor.verificationDetails?.primarySpecialization || 'Not specified'}</p>
+                <p className="text-gray-800">{doctor.primarySpecialization || 'Not specified'}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Additional Specializations</p>
-                <p className="text-gray-800">{doctor.verificationDetails?.additionalSpecializations || 'Not specified'}</p>
+                <p className="text-gray-800">{doctor.additionalSpecializations || 'Not specified'}</p>
               </div>
             </div>
           </div>
@@ -152,15 +152,15 @@ const DoctorDetails = () => {
               <div className="grid grid-cols-1 gap-4">
                 <div>
                   <p className="text-sm text-gray-500">Medical Council</p>
-                  <p className="text-gray-800">{doctor.verificationDetails?.medicalCouncilName || 'Not specified'}</p>
+                  <p className="text-gray-800">{doctor.medicalCouncilName || 'Not specified'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Registration Number</p>
-                  <p className="text-gray-800">{doctor.verificationDetails?.medicalCouncilRegistrationNumber || 'Not specified'}</p>
+                  <p className="text-gray-800">{doctor.medicalCouncilRegistrationNumber || 'Not specified'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Registration Year</p>
-                  <p className="text-gray-800">{doctor.verificationDetails?.yearOfRegistration || 'Not specified'}</p>
+                  <p className="text-gray-800">{doctor.yearOfRegistration || 'Not specified'}</p>
                 </div>
               </div>
             </div>
@@ -168,7 +168,7 @@ const DoctorDetails = () => {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Qualifications</h3>
               <div className="space-y-4">
-                {doctor.verificationDetails?.qualifications?.map((qual, index) => (
+                {doctor.qualifications?.map((qual, index) => (
                   <div key={index} className="p-4 bg-gray-50 rounded-md">
                     <p className="font-medium text-gray-800">{qual.degree}</p>
                     <p className="text-sm text-gray-600">{qual.universityCollege}</p>
@@ -180,7 +180,7 @@ const DoctorDetails = () => {
 
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Hospital Information</h3>
-              {doctor.verificationDetails?.hospitalInfo?.map((hospital, index) => (
+              {doctor.hospitalInfo?.map((hospital, index) => (
                 <div key={index} className="p-4 bg-gray-50 rounded-md">
                   <p className="font-medium text-gray-800">{hospital.hospitalName}</p>
                   <p className="text-sm text-gray-600">{hospital.hospitalAddress}</p>
@@ -198,100 +198,128 @@ const DoctorDetails = () => {
 
         {/* Documents Section */}
         <div className="mt-8">
-          <h3 className="text-lg font-semibold mb-4">Documents</h3>
+          <h3 className="text-lg font-semibold mb-6">Documents & Certificates</h3>
+          
+          {/* Main Documents */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="p-4 bg-gray-50 rounded-md">
-              <h4 className="font-medium text-gray-800 mb-2">Profile Image</h4>
-              {doctor.verificationDetails?.profileImage ? (
-                <div className="space-y-2">
-                  <img 
-                    src={doctor.verificationDetails.profileImage} 
-                    alt="Profile" 
-                    className="w-full h-32 object-cover rounded"
-                  />
+            {/* Profile Image */}
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+              <div className="aspect-w-16 aspect-h-12">
+                <img 
+                  src={doctor.profileImage || '/default-doctor.png'} 
+                  alt={doctor.fullName || 'Doctor Profile'} 
+                  className="w-full h-48 object-cover"
+                />
+              </div>
+              <div className="p-4">
+                <h4 className="font-semibold text-gray-800 mb-2">Profile Photo</h4>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-500">Primary Photo</span>
                   <a 
-                    href={doctor.verificationDetails.profileImage} 
+                    href={doctor.profileImage} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 text-sm"
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1"
                   >
-                    View Full Size
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    View
                   </a>
                 </div>
-              ) : (
-                <p className="text-gray-500 text-sm">No profile image available</p>
-              )}
+              </div>
             </div>
 
-            <div className="p-4 bg-gray-50 rounded-md">
-              <h4 className="font-medium text-gray-800 mb-2">Identity Document</h4>
-              {doctor.verificationDetails?.identityDocument ? (
-                <div className="space-y-2">
-                  <img 
-                    src={doctor.verificationDetails.identityDocument} 
-                    alt="Identity Document" 
-                    className="w-full h-32 object-cover rounded"
-                  />
+            {/* Identity Document */}
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+              <div className="aspect-w-16 aspect-h-12">
+                <img 
+                  src={doctor.identityDocument} 
+                  alt="Identity Document" 
+                  className="w-full h-48 object-cover"
+                />
+              </div>
+              <div className="p-4">
+                <h4 className="font-semibold text-gray-800 mb-2">Identity Document</h4>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-500">Verification ID</span>
                   <a 
-                    href={doctor.verificationDetails.identityDocument} 
+                    href={doctor.identityDocument} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 text-sm"
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1"
                   >
-                    View Document
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download
                   </a>
                 </div>
-              ) : (
-                <p className="text-gray-500 text-sm">No identity document available</p>
-              )}
+              </div>
             </div>
 
-            <div className="p-4 bg-gray-50 rounded-md">
-              <h4 className="font-medium text-gray-800 mb-2">Medical Council Certificate</h4>
-              {doctor.verificationDetails?.medicalCouncilCertificate ? (
-                <div className="space-y-2">
-                  <img 
-                    src={doctor.verificationDetails.medicalCouncilCertificate} 
-                    alt="Medical Council Certificate" 
-                    className="w-full h-32 object-cover rounded"
-                  />
+            {/* Medical Council Certificate */}
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+              <div className="aspect-w-16 aspect-h-12">
+                <img 
+                  src={doctor.medicalCouncilCertificate} 
+                  alt="Medical Council Certificate" 
+                  className="w-full h-48 object-cover"
+                />
+              </div>
+              <div className="p-4">
+                <h4 className="font-semibold text-gray-800 mb-2">Medical Council Certificate</h4>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-500">Registration Document</span>
                   <a 
-                    href={doctor.verificationDetails.medicalCouncilCertificate} 
+                    href={doctor.medicalCouncilCertificate} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 text-sm"
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1"
                   >
-                    View Certificate
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download
                   </a>
                 </div>
-              ) : (
-                <p className="text-gray-500 text-sm">No medical council certificate available</p>
-              )}
+              </div>
             </div>
           </div>
 
           {/* Qualification Certificates */}
-          {doctor.verificationDetails?.qualificationCertificates?.length > 0 && (
-            <div className="mt-6">
-              <h4 className="font-medium text-gray-800 mb-3">Qualification Certificates</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {doctor.verificationDetails.qualificationCertificates.map((cert, index) => (
-                  <div key={index} className="p-4 bg-gray-50 rounded-md">
-                    <h5 className="font-medium text-gray-700 mb-2">Certificate {index + 1}</h5>
-                    <div className="space-y-2">
+          {doctor.qualificationCertificates?.length > 0 && (
+            <div className="mt-8">
+              <h4 className="text-lg font-semibold mb-4">Educational Certificates</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {doctor.qualificationCertificates.map((cert, index) => (
+                  <div key={index} className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                    <div className="aspect-w-16 aspect-h-12">
                       <img 
                         src={cert} 
-                        alt={`Qualification Certificate ${index + 1}`} 
-                        className="w-full h-32 object-cover rounded"
+                        alt={`Educational Certificate ${index + 1}`} 
+                        className="w-full h-48 object-cover"
                       />
-                      <a 
-                        href={cert} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 text-sm"
-                      >
-                        View Certificate
-                      </a>
+                    </div>
+                    <div className="p-4">
+                      <h4 className="font-semibold text-gray-800 mb-2">
+                        Certificate {index + 1}
+                      </h4>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-500">Qualification Document</span>
+                        <a 
+                          href={cert} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                          Download
+                        </a>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -306,11 +334,11 @@ const DoctorDetails = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-gray-500">City</p>
-              <p className="text-gray-800">{doctor.verificationDetails?.location?.city || 'Not specified'}</p>
+              <p className="text-gray-800">{doctor.location?.city || 'Not specified'}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">State</p>
-              <p className="text-gray-800">{doctor.verificationDetails?.location?.state || 'Not specified'}</p>
+              <p className="text-gray-800">{doctor.location?.state || 'Not specified'}</p>
             </div>
           </div>
         </div>
@@ -321,20 +349,20 @@ const DoctorDetails = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-gray-500">Aadhaar Number</p>
-              <p className="text-gray-800">{doctor.verificationDetails?.aadhaarNumber || 'Not provided'}</p>
+              <p className="text-gray-800">{doctor.aadhaarNumber || 'Not provided'}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">PAN Number</p>
-              <p className="text-gray-800">{doctor.verificationDetails?.panNumber || 'Not provided'}</p>
+              <p className="text-gray-800">{doctor.panNumber || 'Not provided'}</p>
             </div>
           </div>
         </div>
 
         {/* Banking Information */}
-        {doctor.verificationDetails?.bankingInfo?.length > 0 && (
+        {doctor.bankingInfo?.length > 0 && (
           <div className="mt-8">
             <h3 className="text-lg font-semibold mb-4">Banking Information</h3>
-              {doctor.verificationDetails.bankingInfo.map((bank, index) => (
+              {doctor.bankingInfo.map((bank, index) => (
                 <div key={index} className="p-4 bg-gray-50 rounded-md mb-4">
                   <h4 className="font-medium text-gray-800 mb-3">Bank Account {index + 1}</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -376,7 +404,7 @@ const DoctorDetails = () => {
               {doctor.registrationStatus?.replace(/_/g, ' ').toUpperCase() || 'PENDING VERIFICATION'}
             </span>
             <span className="text-sm text-gray-500">
-              Verified: {doctor.verificationDetails?.verified ? 'Yes' : 'No'}
+              Verified: {doctor.verified ? 'Yes' : 'No'}
             </span>
           </div>
         </div>

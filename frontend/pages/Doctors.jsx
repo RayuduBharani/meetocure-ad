@@ -6,7 +6,7 @@ const API_URL = 'http://localhost:8000'; // adjust this to match your backend UR
 
 const fetchDoctors = async () => {
   try {
-    const response = await fetch(`${API_URL}/admin/docters`);
+    const response = await fetch(`${API_URL}/admin/doctors`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -25,10 +25,10 @@ const fetchDoctors = async () => {
           patientsConsulted: doctor.patientsConsulted?.length || 0,
           id: doctor._id,
         };
-        console.log('Mapped doctor:', result); // Debug log for each mapped doctor
+        // console.log('Mapped doctor:', result); // Debug log for each mapped doctor
         return result;
       });
-      console.log('All mapped doctors:', mappedDoctors); // Debug log for final array
+      // console.log('All mapped doctors:', mappedDoctors); // Debug log for final array
       return mappedDoctors;
     } else {
       console.error('Invalid data format received:', data);
@@ -42,15 +42,15 @@ const fetchDoctors = async () => {
 
 const deleteDoctor = async (doctorId) => {
   try {
-    console.log('Attempting to delete doctor with ID:', doctorId);
-    const response = await fetch(`${API_URL}/admin/docters/${doctorId}`, {
+    // console.log('Attempting to delete doctor with ID:', doctorId);
+    const response = await fetch(`${API_URL}/admin/doctors/${doctorId}`, {
       method: 'DELETE',
     });
-    
-    console.log('Delete response status:', response.status);
+
+    // console.log('Delete response status:', response.status);
     const data = await response.json();
-    console.log('Delete response data:', data);
-    
+    // console.log('Delete response data:', data);
+
     if (!data.success) {
       throw new Error(data.message || 'Failed to delete doctor');
     }
@@ -80,11 +80,19 @@ const Doctors = ({ searchQuery = '' }) => {
         setIsLoading(true);
         setError(null);
         const data = await fetchDoctors();
-        console.log('Loaded doctors:', data); // Debug log
+        // console.log('Loaded doctors:', data); // Debug log
         setDoctors(data);
       } catch (err) {
         console.error('Error loading doctors:', err);
-        setError(err.message);
+        setError(err.message || 'Failed to load doctors. Please check your network connection and try again.');
+        // Show more specific error messages based on response status
+        if (err.message.includes('404')) {
+          setError('No doctors found. The server endpoint might have changed.');
+        } else if (err.message.includes('500')) {
+          setError('Server error occurred while loading doctors. Please try again later.');
+        } else if (err.message.includes('Network')) {
+          setError('Network error. Please check your internet connection.');
+        }
       } finally {
         setIsLoading(false);
       }
@@ -96,42 +104,42 @@ const Doctors = ({ searchQuery = '' }) => {
   const cities = useMemo(() => getUniqueValues(doctors, 'city'), [doctors]);
 
   const filteredDoctors = useMemo(() => {
-    console.log('Filtering doctors:', { 
-      totalDoctors: doctors.length,
-      searchQuery,
-      statusFilter,
-      specFilter,
-      cityFilter
-    });
+    // console.log('Filtering doctors:', { 
+    //   totalDoctors: doctors.length,
+    //   searchQuery,
+    //   statusFilter,
+    //   specFilter,
+    //   cityFilter
+    // });
 
     const filtered = doctors.filter(doctor => {
       if (!doctor) return false;
-      
-      const matchesSearch = !searchQuery || 
+
+      const matchesSearch = !searchQuery ||
         (doctor.name && doctor.name.toLowerCase().includes(searchQuery.toLowerCase()));
       const matchesStatus = statusFilter === 'Status' || doctor.status === statusFilter;
-      const matchesSpec = specFilter === 'All' || 
+      const matchesSpec = specFilter === 'All' ||
         (doctor.specialization && doctor.specialization === specFilter);
-      const matchesCity = cityFilter === 'All' || 
+      const matchesCity = cityFilter === 'All' ||
         (doctor.city && doctor.city === cityFilter);
 
       const matches = matchesSearch && matchesStatus && matchesSpec && matchesCity;
-      console.log('Doctor filtering:', { 
-        name: doctor.name,
-        matches,
-        matchesSearch,
-        matchesStatus,
-        matchesSpec,
-        matchesCity
-      });
-      
+      // console.log('Doctor filtering:', { 
+      //   name: doctor.name,
+      //   matches,
+      //   matchesSearch,
+      //   matchesStatus,
+      //   matchesSpec,
+      //   matchesCity
+      // });
+
       return matches;
     });
 
-    console.log('Filtered results:', filtered);
+    // console.log('Filtered results:', filtered);
     return filtered;
   }, [doctors, searchQuery, statusFilter, specFilter, cityFilter]);
-  console.log('Filtered doctors:', filteredDoctors); // Debug log
+  // console.log('Filtered doctors:', filteredDoctors); // Debug log
 
   const handleDeleteDoctor = async (doctor) => {
     if (window.confirm(`Are you sure you want to delete ${doctor.name}? This action will permanently remove the doctor and all associated verification details. This action cannot be undone.`)) {
@@ -149,7 +157,7 @@ const Doctors = ({ searchQuery = '' }) => {
   const getStatusType = (status) => {
     switch (status) {
       case 'verified': return 'success';
-      case 'pending_verification': 
+      case 'pending_verification':
       case 'under review by hospital':
       case 'under admin approval':
         return 'warning';
@@ -158,7 +166,7 @@ const Doctors = ({ searchQuery = '' }) => {
     }
   };
 
-    
+
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-8">Doctors Management</h1>
@@ -175,14 +183,6 @@ const Doctors = ({ searchQuery = '' }) => {
       <div className="bg-white p-6 rounded-lg shadow-md">
         <div className="flex items-center justify-end mb-6 flex-wrap gap-4">
           <div className="flex items-center gap-4 flex-wrap">
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary bg-white text-gray-900">
-              <option>Status</option>
-              <option>verified</option>
-              <option>pending_verification</option>
-              <option>under review by hospital</option>
-              <option>under admin approval</option>
-              <option>rejected</option>
-            </select>
             <select value={specFilter} onChange={(e) => setSpecFilter(e.target.value)} className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary bg-white text-gray-900">
               {specializations.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
@@ -191,7 +191,7 @@ const Doctors = ({ searchQuery = '' }) => {
             </select>
           </div>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
@@ -199,8 +199,6 @@ const Doctors = ({ searchQuery = '' }) => {
                 <th className="p-4 font-semibold">Name</th>
                 <th className="p-4 font-semibold">Specialization</th>
                 <th className="p-4 font-semibold">City</th>
-                <th className="p-4 font-semibold">Status</th>
-                <th className="p-4 font-semibold">Patients</th>
                 <th className="p-4 font-semibold">Fee (₹)</th>
                 <th className="p-4 font-semibold">Earnings (₹)</th>
                 <th className="p-4 font-semibold">Actions</th>
@@ -212,10 +210,6 @@ const Doctors = ({ searchQuery = '' }) => {
                   <td className="p-4 font-medium text-gray-900">{doctor.name}</td>
                   <td className="p-4 text-gray-600">{doctor.specialization}</td>
                   <td className="p-4 text-gray-600">{doctor.city}</td>
-                  <td className="p-4">
-                    <Badge text={doctor.status} type={getStatusType(doctor.status)} />
-                  </td>
-                  <td className="p-4 text-gray-600 text-center">{doctor.patientsConsulted}</td>
                   <td className="p-4 text-gray-600 text-right">{doctor.consultationFee.toLocaleString()}</td>
                   <td className="p-4 text-gray-600 text-right">{doctor.earnings.toLocaleString()}</td>
                   <td className="p-4">

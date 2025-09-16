@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Badge from '../components/ui/Badge.jsx';
-
-const API_URL = 'http://localhost:8000';
+import apiService from '../services/api.js';
 
 const DoctorPatients = () => {
   const { id } = useParams();
@@ -16,11 +15,7 @@ const DoctorPatients = () => {
       try {
         setIsLoading(true);
         setError(null);
-        const response = await fetch(`${API_URL}/admin/docters/${id}/patients`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const result = await response.json();
+        const result = await apiService.getDoctorPatients(id);
         if (result.success) {
           setData(result.data);
         } else {
@@ -137,7 +132,7 @@ const DoctorPatients = () => {
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <button
-                        onClick={() => navigate(`/patients/${patient.patientInfo.id}`)}
+                        onClick={() => navigate(`/patients/${patient.patientId}`)}
                         className="inline-flex items-center px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:text-indigo-800 rounded-md transition-colors font-medium"
                       >
                         View Details

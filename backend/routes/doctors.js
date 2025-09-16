@@ -7,11 +7,9 @@ const Patient = require('../models/Patient');
 
 // Get single doctor by ID
 router.get('/:id', async (req, res) => {
+    console.log(req.params.id);
     try {
-        const doctor = await Doctor.findById(req.params.id)
-            .populate('verificationDetails')
-            .select('-passwordHash');
-
+        const doctor = await DoctorVerification.findById(req.params.id)
         if (!doctor) {
             return res.status(404).json({
                 success: false,
@@ -42,17 +40,7 @@ router.get('/', async (req, res) => {
 
         const formattedDoctors = doctors.map(doctor => {
             const verificationDetails = doctor.verificationDetails || {};
-            return {
-                _id: doctor._id,
-                fullName: verificationDetails.fullName || 'Unknown',
-                primarySpecialization: verificationDetails.primarySpecialization || 'Not specified',
-                category: verificationDetails.category || 'General',
-                location: verificationDetails.location || { city: 'Not specified' },
-                status: doctor.registrationStatus,
-                patientsConsulted: verificationDetails.patientsConsulted || [],
-                earnings: verificationDetails.earnings || 0,
-                consultationFee: verificationDetails.consultationFee || 0
-            };
+            return verificationDetails
         });
 
 
@@ -74,12 +62,19 @@ router.get('/', async (req, res) => {
 // Get doctor's patients and their appointments
 router.get('/:id/patients', async (req, res) => {
     try {
-        console.log('Fetching patients for doctor:', req.params.id);
-        // First get the doctor and their verification details
-        const doctor = await Doctor.findById(req.params.id)
-            .populate('verificationDetails')
-            .select('-passwordHash');
+        console.log('Fetching patients for doctor verification ID:', req.params.id);
+        
+        // First get the doctor verification details
+        const doctorVerification = await DoctorVerification.findById(req.params.id);
+        if (!doctorVerification) {
+            return res.status(404).json({
+                success: false,
+                message: 'Doctor verification details not found'
+            });
+        }
 
+        // Get the base doctor document
+        const doctor = await Doctor.findOne({ verificationDetails: req.params.id });
         if (!doctor) {
             return res.status(404).json({
                 success: false,
@@ -88,9 +83,9 @@ router.get('/:id/patients', async (req, res) => {
         }
 
         // Get all appointments for this doctor
-        console.log('Finding appointments with doctor ID:', req.params.id);
+        console.log('Finding appointments with doctor ID:', doctor._id);
         const appointments = await Appointments.find({ 
-            doctor: req.params.id 
+            doctor: doctor._id 
         })
         .populate('patient')
         .sort({ appointment_date: -1, appointment_time: -1 }); // Most recent first
@@ -99,12 +94,16 @@ router.get('/:id/patients', async (req, res) => {
 
         // Group appointments by patient
         const patientAppointments = appointments.reduce((acc, appointment) => {
-            const patientId = appointment.patient?._id.toString();
+            if (!appointment.patient) return acc;
+            
+            const patientId = appointment.patient._id.toString();
             if (!acc[patientId]) {
                 acc[patientId] = {
                     patientInfo: {
-                        ...appointment.patientInfo,
-                        id: appointment.patient?._id // Use the Patient model ID
+                        name: appointment.patientInfo.name,
+                        phone: appointment.patientInfo.phone,
+                        age: appointment.patientInfo.age,
+                        gender: appointment.patientInfo.gender
                     },
                     patientId: patientId,
                     appointments: []
@@ -129,13 +128,21 @@ router.get('/:id/patients', async (req, res) => {
                 return lastAppB - lastAppA;
             });
 
+        console.log('Doctor verification details:', {
+            id: doctorVerification._id,
+            name: doctorVerification.fullName,
+            doctorId: doctorVerification.doctorId
+        });
+        console.log('Found appointments:', appointments.length);
+        console.log('Processed patients:', patientsList.length);
+        
         res.status(200).json({
             success: true,
             data: {
                 doctor: {
-                    id: doctor._id,
-                    name: doctor.verificationDetails?.fullName || 'Unknown',
-                    specialization: doctor.verificationDetails?.primarySpecialization
+                    id: doctorVerification._id,
+                    name: doctorVerification.fullName || 'Unknown',
+                    specialization: doctorVerification.primarySpecialization || 'Not specified'
                 },
                 patients: patientsList,
                 totalPatients: patientsList.length,
