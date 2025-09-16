@@ -20,7 +20,7 @@ const HospitalInfo = () => {
             setLoading(true);
             setError(null);
             
-            const response = await fetch(`http://localhost:8000/admin/hospitals/${id}`);
+            const response = await fetch(`http://13.232.200.28:8000/admin/hospitals/${id}`);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);

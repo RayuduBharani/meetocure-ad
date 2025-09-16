@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = 'http://13.232.200.28:8000';
 
 const DoctorDetails = () => {
   const [doctor, setDoctor] = useState(null);

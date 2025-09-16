@@ -38,7 +38,7 @@ const Hospitals = () => {
       setError(null);
       
       console.log('Fetching hospitals...');
-      const response = await fetch('http://localhost:8000/admin/hospitals');
+      const response = await fetch('http://13.232.200.28:8000/admin/hospitals');
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -65,7 +65,7 @@ const Hospitals = () => {
   const fetchStats = async () => {
     try {
       console.log('Fetching stats...');
-      const response = await fetch('http://localhost:8000/admin/hospitals/stats');
+      const response = await fetch('http://13.232.200.28:8000/admin/hospitals/stats');
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -107,7 +107,7 @@ const Hospitals = () => {
     try {
       setDeleting(true);
       const response = await fetch(
-        `http://localhost:8000/admin/hospitals/${hospitalToDelete._id}`,
+        `http://13.232.200.28:8000/admin/hospitals/${hospitalToDelete._id}`,
         {
           method: 'DELETE',
         }
