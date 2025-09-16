@@ -10,7 +10,17 @@ router.get('/', async (req, res) => {
     try {
         await connectDB();
         const hospitals = await Hospital.find()
-        // console.log(hospitals);
+            .populate({
+                path: 'docters',
+                model: 'Doctor',
+                populate: {
+                    path: 'verificationDetails',
+                    model: 'DoctorVerification'
+                }
+            })
+            .select('-password');
+
+        console.log('Fetched hospitals with populated doctors:', hospitals.length);
 
         res.status(200).json({
             success: true,
@@ -34,8 +44,9 @@ router.get('/stats', async (req, res) => {
         
         const totalHospitals = await Hospital.countDocuments();
         
-        // Count total doctors across all hospitals
-        const hospitals = await Hospital.find();
+        // Get hospitals with populated doctors for accurate counting
+        const hospitals = await Hospital.find().populate('docters');
+        
         let totalDoctors = 0;
         let hospitalsWithDoctors = 0;
         
@@ -70,17 +81,22 @@ router.get('/doctors/all', async (req, res) => {
     try {
         await connectDB();
         
-        // Get all hospitals with their doctors
         const hospitals = await Hospital.find()
-        console.log(hospitals);
+            .populate({
+                path: 'docters',
+                model: 'Doctor',
+                populate: {
+                    path: 'verificationDetails',
+                    model: 'DoctorVerification'
+                }
+            });
 
-        // Flatten all doctors with their hospital information
         const allDoctors = [];
         hospitals.forEach(hospital => {
             if (hospital.docters && hospital.docters.length > 0) {
                 hospital.docters.forEach(doctor => {
                     allDoctors.push({
-                        ...doctor,
+                        ...doctor.toObject(),
                         hospitalInfo: {
                             hospitalId: hospital._id,
                             hospitalName: hospital.hospitalName,
@@ -112,7 +128,17 @@ router.get('/doctors/all', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         await connectDB();
-        const hospital = await Hospital.findOne({_id: req.params.id});
+        
+        const hospital = await Hospital.findById(req.params.id)
+            .populate({
+                path: 'docters',
+                model: 'Doctor',
+                populate: {
+                    path: 'verificationDetails',
+                    model: 'DoctorVerification'
+                }
+            })
+            .select('-password');
 
         if (!hospital) {
             return res.status(404).json({
@@ -121,16 +147,7 @@ router.get('/:id', async (req, res) => {
             });
         }
 
-        // If hospital has doctors, fetch their full details
-        if (hospital.docters && hospital.docters.length > 0) {
-            const doctorIds = hospital.docters.map(id => id.toString().trim().replace(/\n/g, ''));
-            console.log('Doctor IDs to fetch:', doctorIds);
-            const doctors = await Doctor.find({ _id: { $in: doctorIds } }).populate('verificationDetails');
-            console.log('Found doctors:', doctors.length);
-            
-            // Replace doctor IDs with full doctor objects
-            hospital.docters = doctors;
-        }
+        console.log(`Hospital ${hospital.hospitalName} has ${hospital.docters?.length || 0} doctors`);
 
         res.status(200).json({
             success: true,
@@ -150,8 +167,16 @@ router.get('/:id', async (req, res) => {
 router.get('/:id/doctors', async (req, res) => {
     try {
         await connectDB();
-        const hospital = await Hospital.findById(req.params.id);
-        console.log(hospital);
+        
+        const hospital = await Hospital.findById(req.params.id)
+            .populate({
+                path: 'docters',
+                model: 'Doctor',
+                populate: {
+                    path: 'verificationDetails',
+                    model: 'DoctorVerification'
+                }
+            });
         
         if (!hospital) {
             return res.status(404).json({
@@ -163,7 +188,12 @@ router.get('/:id/doctors', async (req, res) => {
         res.status(200).json({
             success: true,
             data: hospital.docters || [],
-            count: hospital.docters ? hospital.docters.length : 0
+            count: hospital.docters ? hospital.docters.length : 0,
+            hospitalInfo: {
+                name: hospital.hospitalName,
+                address: hospital.address,
+                contact: hospital.contact
+            }
         });
     } catch (error) {
         console.error('Error fetching hospital doctors:', error);
@@ -175,15 +205,12 @@ router.get('/:id/doctors', async (req, res) => {
     }
 });
 
-
-
 // POST create new hospital
 router.post('/', async (req, res) => {
     try {
         await connectDB();
         const { email, password, hospitalName, address, contact, hospitalImage, description, specialties, facilities, location } = req.body;
 
-        // Check if hospital already exists
         const existingHospital = await Hospital.findOne({ email });
         if (existingHospital) {
             return res.status(409).json({
@@ -200,10 +227,10 @@ router.post('/', async (req, res) => {
             contact,
             hospitalImage,
             description,
-            specialties,
-            facilities,
-            location,
-            doctors: []
+            specialties: specialties || [],
+            facilities: facilities || [],
+            location: location || {},
+            docters: []
         });
 
         await hospital.save();
@@ -273,13 +300,12 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// DELETE hospital (soft delete)
+// DELETE hospital
 router.delete('/:id', async (req, res) => {
     try {
         await connectDB();
         
-        // First check if hospital exists
-        const hospital = await Hospital.findById(req.params.id);
+        const hospital = await Hospital.findById(req.params.id).populate('docters');
         if (!hospital) {
             return res.status(404).json({
                 success: false,
@@ -287,7 +313,6 @@ router.delete('/:id', async (req, res) => {
             });
         }
 
-        // Check if hospital has doctors
         if (hospital.docters && hospital.docters.length > 0) {
             return res.status(400).json({
                 success: false,
@@ -296,14 +321,13 @@ router.delete('/:id', async (req, res) => {
             });
         }
 
-        // Delete the hospital
-        const deletedHospital = await Hospital.findByIdAndDelete(req.params.id);
+        await Hospital.findByIdAndDelete(req.params.id);
 
         res.status(200).json({
             success: true,
             message: 'Hospital deleted successfully',
             data: {
-                hospitalName: deletedHospital.hospitalName,
+                hospitalName: hospital.hospitalName,
                 deletedAt: new Date()
             }
         });
@@ -317,35 +341,88 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-// HARD DELETE hospital (permanent delete)
-router.delete('/:id/permanent', async (req, res) => {
+// POST add doctor to hospital
+router.post('/:hospitalId/doctors/:doctorId', async (req, res) => {
     try {
         await connectDB();
         
-        const hospital = await Hospital.findById(req.params.id);
+        const hospital = await Hospital.findById(req.params.hospitalId);
+        const doctor = await Doctor.findById(req.params.doctorId);
+        
         if (!hospital) {
             return res.status(404).json({
                 success: false,
                 message: 'Hospital not found'
             });
         }
-
-        // Permanently delete the hospital
-        await Hospital.findByIdAndDelete(req.params.id);
-
+        
+        if (!doctor) {
+            return res.status(404).json({
+                success: false,
+                message: 'Doctor not found'
+            });
+        }
+        
+        // Check if doctor is already added to this hospital
+        if (hospital.docters.includes(req.params.doctorId)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Doctor is already associated with this hospital'
+            });
+        }
+        
+        hospital.docters.push(req.params.doctorId);
+        await hospital.save();
+        
         res.status(200).json({
             success: true,
-            message: 'Hospital permanently deleted',
+            message: 'Doctor added to hospital successfully',
             data: {
+                hospitalId: hospital._id,
+                doctorId: doctor._id,
                 hospitalName: hospital.hospitalName,
-                deletedAt: new Date()
+                doctorName: doctor.fullName || doctor.name
             }
         });
     } catch (error) {
-        console.error('Error permanently deleting hospital:', error);
+        console.error('Error adding doctor to hospital:', error);
         res.status(500).json({
             success: false,
-            message: 'Error permanently deleting hospital',
+            message: 'Error adding doctor to hospital',
+            error: error.message
+        });
+    }
+});
+
+// DELETE remove doctor from hospital
+router.delete('/:hospitalId/doctors/:doctorId', async (req, res) => {
+    try {
+        await connectDB();
+        
+        const hospital = await Hospital.findById(req.params.hospitalId);
+        
+        if (!hospital) {
+            return res.status(404).json({
+                success: false,
+                message: 'Hospital not found'
+            });
+        }
+        
+        hospital.docters = hospital.docters.filter(
+            doctorId => doctorId.toString() !== req.params.doctorId
+        );
+        
+        await hospital.save();
+        
+        res.status(200).json({
+            success: true,
+            message: 'Doctor removed from hospital successfully'
+        });
+    } catch (error) {
+        console.error('Error removing doctor from hospital:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error removing doctor from hospital',
             error: error.message
         });
     }

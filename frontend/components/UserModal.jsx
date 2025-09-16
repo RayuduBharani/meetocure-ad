@@ -5,7 +5,6 @@ const UserModal = ({ isOpen, onClose, onSubmit, user = null }) => {
         name: user?.name || '',
         email: user?.email || '',
         password: '',
-        role: user?.role || 'Support',
         status: user?.status || 'Active'
     });
 
@@ -65,20 +64,7 @@ const UserModal = ({ isOpen, onClose, onSubmit, user = null }) => {
                                 />
                             </div>
                         )}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                            <select
-                                name="role"
-                                value={formData.role}
-                                onChange={handleChange}
-                                className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary"
-                            >
-                                <option value="Admin">Admin</option>
-                                <option value="Moderator">Moderator</option>
-                                <option value="Analyst">Analyst</option>
-                                <option value="Support">Support</option>
-                            </select>
-                        </div>
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                             <select

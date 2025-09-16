@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Badge from '../components/ui/Badge.jsx';
 
-const API_URL = 'http://13.232.200.28:8000'; // adjust this to match your backend URL
+const API_URL = 'http://localhost:8000'; // adjust this to match your backend URL
 
 const fetchDoctors = async () => {
   try {

@@ -41,6 +41,7 @@ app.get('/', (req, res) => {
 });
 
 // admin login route
+// admin login route
 app.post("/admin/login", async (req, res) => {
     try {
         await connectDB();
@@ -57,6 +58,14 @@ app.post("/admin/login", async (req, res) => {
             });
         }
         
+        // Check if user is active
+        if (user.status !== 'Active') {
+            return res.status(403).json({
+                success: false,
+                message: "Your account is inactive. Please contact administrator."
+            });
+        }
+        
         // Check password
         if (user.password !== password) { // Note: In production, use proper password hashing
             return res.status(401).json({
@@ -70,8 +79,11 @@ app.post("/admin/login", async (req, res) => {
             success: true,
             message: "Login successful",
             user: {
+                _id: user._id,
+                name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                status: user.status
             }
         });
     } catch (error) {
