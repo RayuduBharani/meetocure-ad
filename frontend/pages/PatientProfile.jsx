@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Badge from '../components/ui/Badge.jsx';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = 'http://13.201.62.186:8000';
 
 const PatientProfile = () => {
     const { id } = useParams();

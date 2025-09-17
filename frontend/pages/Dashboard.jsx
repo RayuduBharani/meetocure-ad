@@ -34,7 +34,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch('http://localhost:8000/admin/stats/dashboard');
+        const response = await fetch('http://13.201.62.186:8000/admin/stats/dashboard');
         const data = await response.json();
         
         if (data.success) {

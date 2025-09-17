@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
     try {
       // First check if server is reachable
       try {
-        await fetch('http://localhost:8000');
+        await fetch('http://13.201.62.186:8000');
       } catch (e) {
         return { 
           success: false, 
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
         };
       }
 
-      const response = await fetch('http://localhost:8000/admin/login', {
+      const response = await fetch('http://13.201.62.186:8000/admin/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

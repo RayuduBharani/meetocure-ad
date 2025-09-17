@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000/admin';
+const API_BASE_URL = 'http://13.201.62.186:8000/admin';
 
 class ApiService {
     // Generic fetch method with error handling
