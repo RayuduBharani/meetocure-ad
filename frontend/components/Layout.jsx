@@ -1,20 +1,18 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+import { useLocation, Outlet } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import Sidebar from './Sidebar';
 import Header from './Header';
 
 const Layout = () => {
-  const [user, setUser] = useState({ name: 'Admin User', email: 'admin@meetocure.com' });
+  const { user, logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
-  const navigate = useNavigate();
   const location = useLocation();
 
   const currentPage = location.pathname.substring(1) || 'dashboard';
 
   const handleLogout = () => {
-    setUser(null);
-    localStorage.removeItem('meetocure_admin_user');
-    navigate('/');
+    logout();
     setSearchQuery('');
   };
 

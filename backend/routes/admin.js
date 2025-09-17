@@ -46,7 +46,7 @@ router.post('/', async (req, res) => {
             name,
             email,
             password, // In production, hash this password
-            role: role || 'admin',
+            role: role || 'Admin',
             status: status || 'Active'
         };
 

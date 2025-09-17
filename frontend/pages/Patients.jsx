@@ -26,7 +26,7 @@ const Patients = ({ searchQuery = '' }) => {
     const fetchPatients = async () => {
         try {
             setLoading(true);
-            const response = await fetch('http://13.232.200.28:8000/admin/patients');
+            const response = await fetch('http://localhost:8000/admin/patients');
             const data = await response.json();
             
             if (data.success) {
@@ -52,7 +52,7 @@ const Patients = ({ searchQuery = '' }) => {
         setRegisterLoading(true);
         
         try {
-            const response = await fetch('http://13.232.200.28:8000/admin/patients/register', {
+            const response = await fetch('http://localhost:8000/admin/patients/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -87,7 +87,7 @@ const Patients = ({ searchQuery = '' }) => {
         setDeleteLoading(true);
         
         try {
-            const response = await fetch(`http://13.232.200.28:8000/admin/patients/${patientToDelete.patientId}`, {
+            const response = await fetch(`http://localhost:8000/admin/patients/${patientToDelete.patientId}`, {
                 method: 'DELETE',
             });
             
@@ -122,7 +122,7 @@ const Patients = ({ searchQuery = '' }) => {
         setPatientProfile(null);
         
         try {
-            const response = await fetch(`http://13.232.200.28:8000/admin/patients/${patient.patientId}/appointments`);
+            const response = await fetch(`http://localhost:8000/admin/patients/${patient.patientId}/appointments`);
             const data = await response.json();
             
             if (data.success) {

@@ -9,32 +9,7 @@ const PORT = process.env.PORT || 8000;
 app.use(express.json());
 app.use(cors());
 
-// Default admin users
-const defaultAdmins = [
-    { email: 'admin1@meetocure.com', password: 'admin123', role: 'admin' },
-    { email: 'admin2@meetocure.com', password: 'admin123', role: 'admin' },
-    { email: 'admin3@meetocure.com', password: 'admin123', role: 'admin' },
-    { email: 'admin4@meetocure.com', password: 'admin123', role: 'admin' }
-];
 
-// Initialize default admin users
-const initializeDefaultAdmins = async () => {
-    try {
-        await connectDB();
-        for (const adminData of defaultAdmins) {
-            const existingAdmin = await Admin.findOne({ email: adminData.email });
-            if (!existingAdmin) {
-                await Admin.create(adminData);
-                console.log(`Created default admin: ${adminData.email}`);
-            }
-        }
-    } catch (error) {
-        console.error('Error creating default admins:', error);
-    }
-};
-
-// Call the initialization function
-initializeDefaultAdmins();
 
 app.get('/', (req, res) => {
 	res.send('Welcome to the Admin API');
@@ -109,7 +84,8 @@ app.post("/admin/register", async (req, res) => {
     const created = await Admin.create({
         email,
         password,
-        role: "admin"
+        role: "Admin",
+        name: email.split('@')[0] // Using email prefix as default name
     })
     if (created) {
         return res.status(201).send({ success: true, message: "Registration success" })
@@ -132,6 +108,9 @@ app.use("/admin/settings", require("./routes/settings.js"));
 
 //admin routes
 app.use("/admin/users", require("./routes/admin.js"));
+
+//stats routes
+app.use("/admin/stats", require("./routes/stats.js"));
 
 
 // Connect to MongoDB and start server

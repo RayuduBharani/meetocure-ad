@@ -86,53 +86,6 @@ const Settings = () => {
         }
     };
 
-    const handleLanguageChange = async (language) => {
-        try {
-            const response = await apiService.updateGeneralSettings({
-                ...settings.general,
-                language
-            });
-
-            if (response?.success || response) {
-                setSettings(prev => ({
-                    ...prev,
-                    general: {
-                        ...prev.general,
-                        language
-                    }
-                }));
-                setSuccess('Language updated successfully');
-            }
-        } catch (err) {
-            console.error('Language update error:', err);
-            setError('Failed to update language setting');
-        }
-    };
-
-    const handleNotificationsToggle = async () => {
-        try {
-            const newValue = !settings.general.notificationsEnabled;
-            const response = await apiService.updateGeneralSettings({
-                ...settings.general,
-                notificationsEnabled: newValue
-            });
-
-            if (response?.success || response) {
-                setSettings(prev => ({
-                    ...prev,
-                    general: {
-                        ...prev.general,
-                        notificationsEnabled: newValue
-                    }
-                }));
-                setSuccess('Notifications setting updated successfully');
-            }
-        } catch (err) {
-            console.error('Notifications update error:', err);
-            setError('Failed to update notification setting');
-        }
-    };
-
     const handleAddUser = async (userData) => {
         try {
             setUserLoading(true);
@@ -294,43 +247,6 @@ const Settings = () => {
     return (
         <div className="p-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-8">Settings</h1>
-
-            {/* General Settings Card */}
-            <SettingsCard title="General Settings">
-                <div className="space-y-6">
-                    {/* Language Setting */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Language
-                        </label>
-                        <select
-                            value={settings.general.language}
-                            onChange={(e) => handleLanguageChange(e.target.value)}
-                            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                        >
-                            <option value="English">English</option>
-                            <option value="Spanish">Spanish</option>
-                            <option value="French">French</option>
-                            <option value="German">German</option>
-                        </select>
-                    </div>
-
-                    {/* Notifications Setting */}
-                    <div>
-                        <label className="flex items-center">
-                            <input
-                                type="checkbox"
-                                checked={settings.general.notificationsEnabled}
-                                onChange={handleNotificationsToggle}
-                                className="rounded border-gray-300 text-primary shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-                            />
-                            <span className="ml-2 text-sm font-medium text-gray-700">
-                                Enable Notifications
-                            </span>
-                        </label>
-                    </div>
-                </div>
-            </SettingsCard>
 
             {/* User Management Card */}
             <SettingsCard title="User Management">

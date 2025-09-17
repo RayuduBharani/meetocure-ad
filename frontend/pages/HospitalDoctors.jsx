@@ -19,7 +19,7 @@ const HospitalDoctors = () => {
   const fetchDoctors = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://13.232.200.28:8000/admin/hospitals/doctors/all');
+      const response = await fetch('http://localhost:8000/admin/hospitals/doctors/all');
       const data = await response.json();
       
       if (data.success) {
